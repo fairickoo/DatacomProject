@@ -19,6 +19,7 @@ def Black_White(path,pathsave):
     img_binary = cv2.threshold(img_grey, thresh, 255, cv2.THRESH_BINARY)[1]
     cv2.imwrite(pathsave, img_binary)
 def Resize(path,pathsave):
+    
     img_Trans = cv2.imread(path,0)
     W = 4
     shape=img_Trans.shape
@@ -27,6 +28,8 @@ def Resize(path,pathsave):
     newX,newY = img_Trans.shape[1]*imgScale, img_Trans.shape[0]*imgScale
     newimg = cv2.resize(img_Trans,(int(newX),int(newY)))
     cv2.imwrite(pathsave, newimg)
+    #cv2.imwrite(path_RZ_N, newimg)
+
 def Repicture(path_original,path_crop,path_BW,path_RZ):
     Crop(path_original,path_crop)
     Resize(path_crop,path_RZ)
@@ -181,11 +184,14 @@ def ReadPicture(lists_pic,comservo):
     return lists_pic         
 def TakeBegin(comservo):
     lists_pic=[]
+    sendpic=[]
     path_original = r'C:/out/Pic.bmp'
     path_crop     = r'C:/image/crop/crop.png'
     path_BW       = r'C:/image/b-w/bw.png'
     path_RZ       = r'C:/image/crop/resize/resize.png'
-
+    path_BW_NEW1      = r'C:/image/b-w/bw_New.png'
+    path_BW_NEW2      = r'C:/image/b-w/bw_New1.png'
+    path_BW_NEW3      = r'C:/image/b-w/bw_New3.png'
     while(True):
         if(comservo.inWaiting()):
             raw = comservo.read()
@@ -208,9 +214,13 @@ def TakeBegin(comservo):
                 os.remove(path_original)
                 time.sleep(6)
                 Repicture(path_original,path_crop,path_BW,path_RZ)
+                
                 print('* Repicture finish')
                 ReadPicture(lists_pic,comservo)
                 print('Read finish > Temp Picture : ',lists_pic)
+                
+                Black_White(path_BW,path_BW_NEW1)
+
                 raw = comservo.read()
                 data = raw.decode('ascii')
                 print('Picture name  : ',data)
@@ -231,6 +241,9 @@ def TakeBegin(comservo):
                     print('* Repicture finish')
                     ReadPicture(lists_pic,comservo)
                     print('Read finish > Temp Picture : ',lists_pic)
+
+                    Black_White(path_BW,path_BW_NEW2)
+
                     raw = comservo.read()
                     data = raw.decode('ascii')
                     print('Picture name  : ',data)
@@ -252,6 +265,9 @@ def TakeBegin(comservo):
                         print('* Repicture finish')
                         ReadPicture(lists_pic,comservo)
                         print('Read finish > Temp Picture : ',lists_pic)
+
+                        Black_White(path_BW,path_BW_NEW3)
+
                         raw = comservo.read()
                         data = raw.decode('ascii')
                         print('Picture name  : ',data)
@@ -265,10 +281,18 @@ def TakeBegin(comservo):
                             print('status servo : ',data)
                             Pule()
                             comservo.close()
+            """if data == 'T':
+                comservo.write
+                ([0,0,0,0,
+                0,0,0,0,
+                1,1,1,1,
+                1,1,1,1])"""
+
 
     return lists_pic
     
 #----------------------------------------------------------------
 #main 
 arduino_servo = serial.Serial('COM17',115200)  
-check= TakeBegin(arduino_servo)
+TakeBegin(arduino_servo)
+
