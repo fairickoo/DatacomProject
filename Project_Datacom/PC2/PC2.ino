@@ -73,7 +73,7 @@ void loop() {
     clockTime = millis();
     if (clockTime - startTime > timedOut)
     {
-      Serial.println("...Retransmitting Frame...");
+      //Serial.println("...Retransmitting Frame...");
       sendFrame(false);
     }
   }
@@ -86,33 +86,33 @@ void loop() {
 
 void checkFrame() //สำหรับเช็คเฟรมที่รับเข้ามา
 {
-  Serial.print("R:");
+  //Serial.print("R:");
   //  Serial.print(inFrame, BIN);
   if (checkError(inFrame)) //Check Error ของเฟรมที่รับเข้ามา โดยใช้ CRC
   {
-    Serial.println("!E");
+    //Serial.println("!E");
     if (inFrame >> 10 == UFrame) //ข้อมูลที่รับเข้ามาเป็น U-Frame
     {
       int temp = (inFrame >> 5)&B11111;
-      Serial.println("...Accepting Request...");
+      //Serial.println("...Accepting Request...");
       Data = 0x6000;
       type = 'U';
       sendFrame(true); //ตอบ ACK แบบไม่จับเวลา
       if (temp == B11100) //Code สำหรับเริ่มการทำงาน
       {
-        Serial.println("CC");
+        //Serial.println("CC");
         //Serial.println("--------------------------------------------");
       }
       else if (temp == B00110) //Code สำหรับจบการทำงาน
       {
-        Serial.println("TC");
+        //Serial.println("TC");
         //Serial.println("--------------------------------------------");
       }
     }
     else if (inFrame >> 10 == IFrame) //ข้อมูลที่รับเข้ามาเป็น I-Frame
     {
       //Serial.println("--------------------------------------------");
-      Serial.println("SK");
+      //Serial.println("SK");
       type = 'S'; //S-Frame สำหรับตอบ ACK
       Data = 0x8000;
       delay(500);
@@ -133,7 +133,7 @@ void checkFrame() //สำหรับเช็คเฟรมที่รับ
         else //ถ้าได้รับคำสั่งอื่น (ถ่ายรูปเดี่ยวๆ)
         {
           //Serial.println("--------------------------------------------");
-          Serial.println("TP");
+          //Serial.println("TP");
           //turn(degrees)
           Data = 0xFFFF;
         }
@@ -144,21 +144,20 @@ void checkFrame() //สำหรับเช็คเฟรมที่รับ
     else if (inFrame >> 10 == SFrame) //ข้อมูลที่รับเข้ามาเป็น S-Frame
     {
       //Serial.println("--------------------------------------------");
-      Serial.println("RK");
+      //Serial.println("RK");
       startTimer = false;
       frameNo = inFrame & 1; //เปลี่ยนหมายเลข Frame ให้ตรงกับ หมายเลข ACK ที่รับเข้ามา
     }
   }
   else
   {
-    Serial.println("E");
+    //Serial.println("E");
   }
 
 }
 
 void scanall()
 {
-  int a,b,c;
   Serial.flush();
   Serial.print("D");
   delay(500);
@@ -173,20 +172,14 @@ void scanall()
         Serial.flush();
         Serial.print("r");
         delay(200);
-        incomingByte = Serial.read();
-        Serial.println(incomingByte);
-
-
       }
       else if (incomingByte == 'm')
       {
         myservo.write(45);
-         Serial.flush();
+        Serial.flush();
         Serial.print("m");
-       
+
         delay(200);
-       incomingByte = Serial.read();
-        Serial.println(incomingByte);
 
       }
       else if (incomingByte == 'l')
@@ -194,21 +187,20 @@ void scanall()
         myservo.write(90);
         Serial.flush();
         Serial.print("l");
-        
+
         delay(200);
-        incomingByte = Serial.read();
-        Serial.println(incomingByte);
       }
-      Data<<=3;
+    else if (incomingByte == '0' || incomingByte == '1' || incomingByte == '2' || incomingByte == '3'
+               || incomingByte == '4' || incomingByte == '5')
+      {
+        Data = incomingByte - '0';
+        Serial.print(Data);
+        delay(500);
+      }
+      Data <<= 3;
     }
     while (incomingByte != 'C');
-//    Data = a;
-//    Data<<=3;
-//    Data = b;
-//    Data<<=3;
-//    Data = c;
-    Data<<=4;    
-
+    Data <<= 4;
   }
 
 }
@@ -349,7 +341,7 @@ void sendFrame(boolean isAck) //สำหรับส่งข้อมูล
 {
   makeFrame(); //สร้าง Frame
   CRC(); //เอาข้อมูลที่จะส่งมาต่อด้วย CRC
-  Serial.print("S:");
+  //Serial.print("S:");
   //  Serial.println(outFrame, BIN);
   if (!isAck) //ถ้าไม่ใช่ ACK ให้จับเวลา
   {

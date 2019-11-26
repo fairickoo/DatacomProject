@@ -1,5 +1,5 @@
 #include <Servo.h>
-
+unsigned long Data;
 Servo myservo;
 int incomingByte;
 void setup() {
@@ -18,23 +18,32 @@ void loop() {
       Serial.print("r");
       delay(500);
     }
-    if (incomingByte == 'm')
+    else if (incomingByte == 'm')
     {
       myservo.write(45);
       Serial.print("m");
       delay(500);
+      
     }
-    if (incomingByte == 'l')
+    else if (incomingByte == 'l')
     {
       myservo.write(90);
       Serial.print("l");
       delay(500);
+
     }
-    
-    
+    else if (incomingByte == '0' || incomingByte == '1' || incomingByte == '2' || incomingByte == '3'
+        || incomingByte == '4' || incomingByte == '5')
+    {
+      Data = incomingByte-'0';
+      Serial.print(Data);
+      delay(500);
+    }
+ Data<<=3;
+
 
   }
-
+Data<<=4;
   //delay(1000);
 }
 
