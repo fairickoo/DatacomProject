@@ -91,7 +91,7 @@ void checkFrame() //สำหรับเช็คเฟรมที่รับ
   //    Serial.print(inFrame, BIN);
   if (checkError(inFrame)) //Check Error ของเฟรมที่รับเข้ามา โดยใช้ CRC
   {
-//    Serial.println("!E");
+    //    Serial.println("!E");
     if (inFrame >> 10 == UFrame) //ข้อมูลที่รับเข้ามาเป็น U-Frame
     {
       int temp = (inFrame >> 5)&B11111;
@@ -126,6 +126,7 @@ void checkFrame() //สำหรับเช็คเฟรมที่รับ
         if (ackNo) ackNo = 0; //สลับเลข ACK
         else ackNo = 1;
         int tempo = (inFrame >> 6) & B111;
+        Data = 0;
         if (tempo == B111) //ถ้าได้รับคำสั่งให้ Scan ทุกรูป
         {
           scanall();
@@ -133,32 +134,48 @@ void checkFrame() //สำหรับเช็คเฟรมที่รับ
         }
         else //ถ้าได้รับคำสั่งอื่น (ถ่ายรูปเดี่ยวๆ)
         {
-          Data = 0;
           myservo.write(indexof(tempo));
           delay(500);
           switch (tempo)
           {
             case B000: //Top
               Serial.print('T');
+              delay(500);
               break;
             case B001: //Bottom
               Serial.print('B');
+              delay(500);
               break;
             case B010: //Left
               Serial.print('L');
+              delay(500);
               break;
             case B011: //Right
               Serial.print('R');
+              delay(500);
               break;
             case B100: //Upper
               Serial.print('U');
+              delay(500);
               break;
             default: //Lower
               Serial.print('O');
+              delay(500);
               break;
-          }          
+          }
+          if (Serial.available() > 0)
+          {
+            for (int i = 0; i < 16; i++)
+            {
+              Data |= Serial.read();
+              Data <<= 1;
+            }
+          }
+          Data >>= 1;
         }
         type = 'I';
+
+        //        Serial.print(Data);
         sendFrame(false);
       }
     }
@@ -183,7 +200,6 @@ void scanall()
   Serial.flush();
   Serial.print("D");
   delay(500);
-  Data = 0;
   int incomingByte;
   if (Serial.available() > 0) {
     //scanall()
@@ -217,14 +233,14 @@ void scanall()
         Data |= incomingByte - '0';
         Data <<= 3;
         Serial.print(Data);
-        store[j] = incomingByte-'0';
+        store[j] = incomingByte - '0';
         j++;
         delay(500);
       }
     }
     while (incomingByte != 'C');
-//    myservo.write(0);
-//    delay(500);
+    //    myservo.write(0);
+    //    delay(500);
     Data <<= 4;
   }
 
@@ -409,11 +425,11 @@ void sendFSK(int frequency, int delayTime) //FSK Modulation
 
 int indexof(int data)
 {
-  for (int i = 0;i<sizeof(store);i++)
+  for (int i = 0; i < sizeof(store); i++)
   {
-    if(store[i] == data)
+    if (store[i] == data)
     {
-      return i*(45);
+      return i * (45);
     }
   }
 }

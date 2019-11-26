@@ -35,6 +35,21 @@ def Repicture(path_original,path_crop,path_BW,path_RZ):
     Resize(path_crop,path_RZ)
     Black_White(path_RZ,path_BW)
 
+def getValueNew(path):
+    lists=[]
+    imVN = cv2.imread(path, 0) 
+    rows,cols = imVN.shape
+    for y in range(rows):
+        for x in range(cols):
+            if imVN[y,x]>=128 and imVN[y,x]<=255:
+                imVN[y,x]=1
+            else:
+                imVN[y,x]=0
+            print(imVN[y,x], end = '')
+            lists.append(imVN[y,x])
+        print("\t")
+    return lists
+        
 #get Value
 def getValue_pixel(path):
     imV = cv2.imread(path, 0) 
@@ -135,7 +150,7 @@ def getValue_pixel(path):
                 print(imV[y,x], end = '')
             print("\t")
         print('bottom') 
-        return "Buttom"
+        return "Bottom"
     else:
         print('\tRead Error ')
         return 1
@@ -175,7 +190,7 @@ def ReadPicture(lists_pic,comservo):
             lists_pic.append("0")
             comservo.write(b'0')
             break
-        elif tempgetV=="Buttom":
+        elif tempgetV=="Bottom":
             lists_pic.append("1")
             comservo.write(b'1')
             break
@@ -278,15 +293,109 @@ def TakeBegin(comservo):
                             comservo.write(b'C')
                             raw = comservo.read()
                             data = raw.decode('ascii')
-                            print('status servo : ',data)
-                            Pule()
-                            comservo.close()
-            """if data == 'T':
-                comservo.write
-                ([0,0,0,0,
-                0,0,0,0,
-                1,1,1,1,
-                1,1,1,1])"""
+                            print('index choose : ',data)
+                            #Pule()
+            
+
+            
+            raw1 = comservo.read()
+            data = raw1.decode('ascii')
+            print('choose : ',data)              
+            if data == 'T':
+                if getValue_pixel(path_BW_NEW1)=='Top':
+                    Rtop=getValueNew(path_BW_NEW1)
+                    comservo.write(Rtop)
+                    print('Rtop :',Rtop)
+                elif getValue_pixel(path_BW_NEW2)=='Top':
+                    Rtop=getValueNew(path_BW_NEW2)
+                    comservo.write(Rtop)
+                    print('Rtop :',Rtop)
+                elif getValue_pixel(path_BW_NEW3)=='Top':
+                    Rtop=getValueNew(path_BW_NEW3)
+                    comservo.write(Rtop)
+                    print('Rtop :',Rtop)
+
+            elif data == 'B':
+                if getValue_pixel(path_BW_NEW1)=='Bottom':
+                    Rbot=getValueNew(path_BW_NEW1)
+                    comservo.write(Rbot)
+                    print('Rbot :',Rbot)
+                elif getValue_pixel(path_BW_NEW2)=='Bottom':
+                    Rbot=getValueNew(path_BW_NEW2)
+                    comservo.write(Rbot)
+                    print('Rbot :',Rbot)
+                elif getValue_pixel(path_BW_NEW3)=='Bottom':
+                    Rbot=getValueNew(path_BW_NEW3)
+                    comservo.write(Rbot)
+                    print('Rbot :',Rbot)
+
+            elif data == 'L':
+                ch=getValue_pixel(path_BW_NEW1)
+                ch2=getValue_pixel(path_BW_NEW2)
+                ch3=getValue_pixel(path_BW_NEW3)
+                if ch=='Left':
+                    Rlef=getValueNew(path_BW_NEW1)
+                    comservo.write(Rlef)
+                    print('Rlef :',Rlef)
+                elif ch2=='Left':
+                    Rlef=getValueNew(path_BW_NEW2)
+                    comservo.write(Rlef)
+                    print('Rlef :',Rlef)
+                elif ch3=='Left':
+                    Rlef=getValueNew(path_BW_NEW3)
+                    comservo.write(Rlef)
+                    print('Rlef :',Rlef)
+
+            elif data == 'R':
+                if getValue_pixel(path_BW_NEW1)=='Right':
+                    Rrig=getValueNew(path_BW_NEW1)
+                    comservo.write( Rrig)
+                    print('Rrig :',Rrig)
+                elif getValue_pixel(path_BW_NEW2)=='Right':
+                    Rrig=getValueNew(path_BW_NEW2)
+                    comservo.write( Rrig)
+                    print('Rrig :',Rrig)
+                elif getValue_pixel(path_BW_NEW3)=='Right':
+                    Rrig=getValueNew(path_BW_NEW3)
+                    comservo.write( Rrig)
+                    print('Rrig :',Rrig)
+
+            elif data == 'U':
+                print('UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU')
+                if getValue_pixel(path_BW_NEW1)=='Upper':
+                    Rup=getValueNew(path_BW_NEW1)
+                    print('Rup :',Rup)
+                    comservo.write( Rup)
+                elif getValue_pixel(path_BW_NEW2)=='Upper':
+                    Rup=getValueNew(path_BW_NEW2)
+                    comservo.write( Rup)
+                    print('Rup :',Rup)
+                elif getValue_pixel(path_BW_NEW3)=='Upper':
+                    Rup=getValueNew(path_BW_NEW3)
+                    comservo.write( Rup)
+                    print('Rup :',Rup)
+
+            elif data == 'O':
+                print('OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO')
+                if getValue_pixel(path_BW_NEW1)=='Lower':
+                    Rlow=getValueNew(path_BW_NEW1)
+                    print('Rlow :',Rlow)
+                    comservo.write(Rlow)
+                    
+                elif getValue_pixel(path_BW_NEW2)=='Lower':
+                    Rlow=getValueNew(path_BW_NEW2)
+                    comservo.write(Rlow)
+                    print('Rlow :',Rlow)
+                elif getValue_pixel(path_BW_NEW3)=='Lower':
+                    Rlow=getValueNew(path_BW_NEW3)
+                    comservo.write(Rlow)
+                    print('Rlow :',Rlow)
+            
+            
+            
+
+
+                
 
 
     return lists_pic
@@ -295,4 +404,5 @@ def TakeBegin(comservo):
 #main 
 arduino_servo = serial.Serial('COM17',115200)  
 TakeBegin(arduino_servo)
+arduino_servo.close()
 
