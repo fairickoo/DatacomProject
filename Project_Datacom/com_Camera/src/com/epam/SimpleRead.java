@@ -24,7 +24,7 @@ public class SimpleRead {
         	portId = (CommPortIdentifier) portList.nextElement();
             if (portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
             	System.out.println("Port name: " + portId.getName());
-                if (portId.getName().equals("COM9")) {
+                if (portId.getName().equals("COM1")) {
                 	SimpleRead reader = new SimpleRead();
                 }
             }

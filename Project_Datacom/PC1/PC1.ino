@@ -182,7 +182,7 @@ void sendFrame(boolean isAck) //สำหรับส่งเฟรม
     }
     outFrame >>= 2;
   }
-  dac.setVoltage(0, false); //เมื่อไม่ส่ง Data โวล=0
+  dac.setVoltage(0, false); //เมื่อไม่ส่ง Data
 }
 void sendFSK(int frequency, int delayTime) //FSK Modulation
 {
@@ -334,12 +334,12 @@ void checkFrame()
         if (isScan) //ให้นำข้อมูลที่แสกนมา มา Display
         {
           Serial.println("---------------------------------------------------");
-          Serial.print("Display: "); //00 |seq(1)|000 001 010 0 |crc (5) & 0x1FF
-          list(((inFrame >> 6) & 0x1FF) >> 6); //00 |seq(1)|000 001 010 & 0x1FF = //000 001 010 // 000 
+          Serial.print("Display: ");
+          list(((inFrame >> 6) & 0x1FF) >> 6);
           Serial.print("at 45 degrees , ");
-          list((((inFrame >> 6) & 0x1FF) >> 3)&B111); //001
+          list((((inFrame >> 6) & 0x1FF) >> 3)&B111);
           Serial.print("at 0 degrees , ");
-          list((((inFrame >> 6) & 0x1FF))&B111); //010
+          list((((inFrame >> 6) & 0x1FF))&B111);
           Serial.println("at -45 degrees.");
           Serial.print("Please choose a picture: ");
           isScan = false;
@@ -351,15 +351,15 @@ void checkFrame()
           Serial.print("...Receiving Pixels No.");
           Serial.print(pixelCount);
           Serial.print(": ");
-          Serial.print((inFrame >> 7) & 0xFF); 
+          Serial.print((inFrame >> 7) & 0xFF);
           Serial.println("...");
-          pixels[pixelCount] = (inFrame >> 7) & 0xFF; //เก็บ 48 ค่าเข้าไป
+          pixels[pixelCount] = (inFrame >> 7) & 0xFF;
           pixelCount++;
           if (pixelCount == 48)
           {
-            Serial.println("...Displaying Image..."); //เรียงเป็นตาราง สวยๆ
+            Serial.println("...Displaying Image...");
             Display();
-            type = 'U';//จบการทำงานแง้ว 00110
+            type = 'U';
             Data = B00110;
             Serial.println("...Terminating..."); //จบการทำงาน
             sendFrame(false); //ส่งแบบจับ TimeOut
