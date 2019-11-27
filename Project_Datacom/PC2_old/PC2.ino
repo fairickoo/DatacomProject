@@ -53,8 +53,6 @@ boolean startTimer = false;
 boolean once = true;
 int store[3];
 int datajum[48];
-int pixels = 0;
-boolean isSendingPixels = false;
 /************************************************************************************ S E T U P ********************************************************************************************/
 
 void setup() {
@@ -98,17 +96,17 @@ void checkFrame() //สำหรับเช็คเฟรมที่รับ
     {
       int temp = (inFrame >> 5)&B11111;
       //Serial.println("...Accepting Request...");
-      Data = 0x180;
+      Data = 0x6000;
       type = 'U';
       sendFrame(true); //ตอบ ACK แบบไม่จับเวลา
       if (temp == B11100) //Code สำหรับเริ่มการทำงาน
       {
-        Serial.print("S");
+        //Serial.println("CC");
         //Serial.println("--------------------------------------------");
       }
-      else if (temp == B00100) //Code สำหรับจบการทำงาน
+      else if (temp == B00110) //Code สำหรับจบการทำงาน
       {
-        Serial.print("E");
+        //Serial.println("TC");
         //Serial.println("--------------------------------------------");
       }
     }
@@ -117,7 +115,7 @@ void checkFrame() //สำหรับเช็คเฟรมที่รับ
       //Serial.println("--------------------------------------------");
       //Serial.println("SK");
       type = 'S'; //S-Frame สำหรับตอบ ACK
-      Data = 0x200;
+      Data = 0x8000;
       delay(500);
       sendFrame(true); //ตอบ ACK แบบไม่จับเวลา
       //      Serial.println(outFrame, BIN);
@@ -165,28 +163,21 @@ void checkFrame() //สำหรับเช็คเฟรมที่รับ
               delay(500);
               break;
           }
-
+          
           if (Serial.available() > 0)
           {
             for (int i = 0; i < 48; i++)
             {
-              
               datajum[i] = Serial.read();
-            }
-            for (int i = 0; i < 48; i++)
-            {
-              Serial.print(datajum[i]);
+              //Data <<= 1;
             }
           }
-          isSendingPixels = true;
-          type = 'I';
-        Data=0;
-          Data = datajum[pixels];
-          Data <<= 2;
-          sendFrame(false);
-          pixels += 1;
+          //Data >>= 1;
         }
+        type = 'I';
 
+        //        Serial.print(Data);
+        sendFrame(false);
       }
     }
     else if (inFrame >> 10 == SFrame) //ข้อมูลที่รับเข้ามาเป็น S-Frame
@@ -195,19 +186,6 @@ void checkFrame() //สำหรับเช็คเฟรมที่รับ
       //Serial.println("RK");
       startTimer = false;
       frameNo = inFrame & 1; //เปลี่ยนหมายเลข Frame ให้ตรงกับ หมายเลข ACK ที่รับเข้ามา
-      if (isSendingPixels)
-      {
-        type = 'I';
-        Data=0;
-        Data = datajum[pixels];
-        Data <<= 2;
-        sendFrame(false);
-        pixels += 1;
-        if (pixels == 48)
-        {
-          isSendingPixels = false;
-        }
-      }
     }
   }
   else
@@ -255,7 +233,7 @@ void scanall()
       {
         Data |= incomingByte - '0';
         Data <<= 3;
-        //        Serial.print(Data);
+        Serial.print(Data);
         store[j] = incomingByte - '0';
         j++;
         delay(500);
@@ -264,9 +242,7 @@ void scanall()
     while (incomingByte != 'C');
     //    myservo.write(0);
     //    delay(500);
-    Data >>= 2;
-    type = 'I';
-    sendFrame(false);
+    Data <<= 4;
   }
 
 }
@@ -383,19 +359,19 @@ void makeFrame() //สร้างเฟรมที่จะส่ง
       outFrame = IFrame;
       outFrame <<= 1;
       outFrame |= frameNo;
-      outFrame <<= 10;
+      outFrame <<= 16;
       outFrame |= Data;
       break;
     case 'S': //S-Frame [10|10000000000000000|1] = [ประเภทเฟรม|ประเภทการทำงาน|หมายเลข ACK]
       outFrame = SFrame;
-      outFrame <<= 10;
+      outFrame <<= 16;
       outFrame |= Data;
       outFrame <<= 1;
       outFrame |= ackNo;
       break;
     default: //U-Frame [11|10101010101010101] = [ประเภทเฟรม|ประเภทการทำงาน]
       outFrame = UFrame;
-      outFrame <<= 11;
+      outFrame <<= 17;
       outFrame |= Data;
       break;
   }
@@ -407,16 +383,15 @@ void sendFrame(boolean isAck) //สำหรับส่งข้อมูล
 {
   makeFrame(); //สร้าง Frame
   CRC(); //เอาข้อมูลที่จะส่งมาต่อด้วย CRC
-  //Serial.print("S:");
-  //Serial.println(outFrame, BIN);
+  //  Serial.print("S:");
+  //    Serial.println(outFrame, BIN);
   if (!isAck) //ถ้าไม่ใช่ ACK ให้จับเวลา
   {
     startTime = clockTime;
     startTimer = true;
   }
-  for (int k = 17 ; k >= 0 ; k -= 2) { //วนส่งทีละ 2 bit จาก 24 bit
+  for (int k = 23 ; k >= 0 ; k -= 2) { //วนส่งทีละ 2 bit จาก 24 bit
     int tmp = outFrame & 3;
-    //Serial.println(tmp);
     switch (tmp)
     {
       case 0: //00
